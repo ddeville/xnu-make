@@ -7,3 +7,6 @@
 [submodule "src/dtrace"]
 	path = src/dtrace
 	url = git@github.com:ddeville/dtrace.git
+[submodule "src/libsystem"]
+	path = src/libsystem
+	url = git@github.com:ddeville/libsystem.git
