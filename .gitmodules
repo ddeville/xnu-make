@@ -1,0 +1,9 @@
+[submodule "src/AvailabilityVersions"]
+	path = src/AvailabilityVersions
+	url = git@github.com:ddeville/AvailabilityVersions.git
+[submodule "src/xnu"]
+	path = src/xnu
+	url = git@github.com:ddeville/xnu.git
+[submodule "src/dtrace"]
+	path = src/dtrace
+	url = git@github.com:ddeville/dtrace.git
