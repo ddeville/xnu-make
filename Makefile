@@ -21,6 +21,16 @@ core_os_makefiles:
 		sudo make --directory=$(CORE_OS_MAKEFILES_SRC) install DSTROOT=$(XCODE_PATH); \
 	fi;
 
+# make a copy of the current sdk to the build folder
+
+MACOSX_SDK_SRC = $(CURDIR)/sdk/MacOSX.sdk
+MACOSX_SDK_BLD = $(CURDIR)/build/sdk/MacOSX.sdk
+
+macosx_sdk:
+	mkdir -p $(MACOSX_SDK_BLD)
+	cd $(MACOSX_SDK_SRC); \
+	rsync -rtpl . $(MACOSX_SDK_BLD)
+
 # install the latest availability versions (a simple perl script) so that the xnu build doesn't get confused
 
 AVAILABILITY_VERSIONS_SRC = $(CURDIR)/externals/AvailabilityVersions/src
