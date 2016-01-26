@@ -1,4 +1,0 @@
-framework module vecLib {
-    header "vecLib.h"
-    requires unavailable
-}

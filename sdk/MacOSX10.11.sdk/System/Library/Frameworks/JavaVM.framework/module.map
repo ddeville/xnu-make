@@ -1,7 +1,0 @@
-framework module JavaVM [extern_c] {
-  umbrella "Headers"
-
-  export *
-  explicit module * { export * }
-}
-

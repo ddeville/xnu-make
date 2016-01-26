@@ -1,9 +1,0 @@
----
-archs:           [ i386, x86_64 ]
-platform:        macosx
-install-name:    /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Libraries/libllvmForJSC.dylib
-current-version: 601.3.7
-exports:         
-  - archs:           [ i386, x86_64 ]
-    symbols:         [ _initializeAndGetJSCLLVMAPI ]
-...
