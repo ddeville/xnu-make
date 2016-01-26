@@ -22,7 +22,7 @@ clean: root_check
 # this target does so, but only if not already installed since the user will need to authenticate to install them.
 
 CORE_OS_MAKEFILES_SRC = $(CURDIR)/src/CoreOSMakefiles
-XCODE_PATH = `xcode-select --print-path`
+XCODE_PATH = $(shell xcode-select --print-path)
 
 .PHONY: core_os_makefiles
 core_os_makefiles: root_check
@@ -33,20 +33,16 @@ core_os_makefiles: root_check
 
 # make a copy of the current sdk to the build directory and create a symlink in the Xcode SDKs directory
 
-XCODE_SDKS_DIR = `xcrun -sdk macosx --show-sdk-platform-path`/Developer/SDKs
+XCODE_SDKS_DIR = $(shell xcrun -sdk macosx --show-sdk-platform-path)/Developer/SDKs
 MACOSX_SDK_SRC = $(XCODE_SDKS_DIR)/$(MACOSX_SDK).sdk
 MACOSX_SDK_DST = $(CURDIR)/build/sdk/$(MACOSX_SDK)-xnu.sdk
-MACOSX_SDK_LNK = $(XCODE_SDKS_DIR)/`basename $(MACOSX_SDK_DST)`
-MACOSX_SDK_XNU = `echo $(MACOSX_SDK) | tr A-Z a-z`-xnu
+MACOSX_SDK_LNK = $(XCODE_SDKS_DIR)/$(shell basename $(MACOSX_SDK_DST))
+MACOSX_SDK_XNU = $(shell echo $(MACOSX_SDK) | tr A-Z a-z)-xnu
 
-.PHONY: sdk
 sdk: root_check
-	if [ ! -d $(MACOSX_SDK_SRC) ]; \
-	then \
-		$(error "The SDK $(MACOSX_SDK) is not currently installed, make sure that you have the latest version of \
-			Xcode installed"); \
-	fi;
-
+ifeq ($(shell test -d $(MACOSX_SDK_SRC); echo $$?), 1)
+	$(error "The SDK $(MACOSX_SDK) cannot be found, make sure that the latest Xcode version is installed")
+endif
 	mkdir -p $(MACOSX_SDK_DST)
 	cd $(MACOSX_SDK_SRC) && rsync -rtpl . $(MACOSX_SDK_DST)
 	plutil -replace CanonicalName -string $(MACOSX_SDK_XNU) $(MACOSX_SDK_DST)/SDKSettings.plist
