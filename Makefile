@@ -5,17 +5,6 @@ MACOSX_SDK = MacOSX10.11
 ARCHS = x86_64
 CONFIGS = RELEASE
 
-# make sure that we're run as root
-
-.PHONY: root_check
-root_check:
-ifneq ($(shell id -u -r), 0)
-	$(error "Please run as root user!")
-endif
-
-.PHONY: sip_check
-sip_check:
-
 # these are the default rules, `all`, `install`, `deploy` and `clean`
 
 .PHONY: all
@@ -30,6 +19,17 @@ deploy: xnu
 .PHONY: clean
 clean: root_check
 	rm -rf $(CURDIR)/build
+
+# make sure that we're run as root
+
+.PHONY: root_check
+root_check:
+ifneq ($(shell id -u -r), 0)
+	$(error "Please run as root user!")
+endif
+
+.PHONY: sip_check
+sip_check:
 
 # libsystem and other dependencies rely on some Core OS makefiles to be installed in the Xcode developer directory.
 # this target does so, but only if not already installed since the user will need to authenticate to install them.
