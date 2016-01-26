@@ -11,6 +11,8 @@ ifneq ($(shell id -u -r), 0)
 	$(error "Please run as root user!")
 endif
 
+# these are the default rules, `all`, `install`, `deploy` and `clean`
+
 .PHONY: all
 all: xnu
 
@@ -98,14 +100,14 @@ XNU_HDRS_BLD = $(CURDIR)/build/xnu.hdrs
 xnu_hdrs: root_check libsystem dtrace
 	mkdir -p $(XNU_HDRS_BLD)/obj $(XNU_HDRS_BLD)/sym $(XNU_HDRS_BLD)/dst
 	echo "You will need to authenticate to build the xnu and libsyscall headers."
-	make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) SRCROOT=$(XNU_HDRS_SRC) \
-		OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
+	make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) \
+		SRCROOT=$(XNU_HDRS_SRC) OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
 	xcodebuild installhdrs -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
 		ARCHS='x86_64 i386' SRCROOT=$(XNU_HDRS_SRC)/libsyscall OBJROOT=$(XNU_HDRS_BLD)/obj \
 		SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
 	ditto $(XNU_HDRS_BLD)/dst $(MACOSX_SDK_DST)
 
-#
+# build libsyscall
 
 LIBSYSCALL_SRC = $(CURDIR)/externals/xnu/src
 LIBSYSCALL_BLD = $(CURDIR)/build/xnu.libsyscall
@@ -118,7 +120,7 @@ xnu_libsyscall: root_check xnu_hdrs
 		ARCHS='x86_64 i386' SRCROOT=$(LIBSYSCALL_SRC)/libsyscall OBJROOT=$(LIBSYSCALL_BLD)/obj \
 		SYMROOT=$(LIBSYSCALL_BLD)/sym DSTROOT=$(LIBSYSCALL_BLD)/dst
 
-#
+# build xnu
 
 XNU_SRC = $(CURDIR)/externals/xnu/src
 XNU_BLD = $(CURDIR)/build/xnu
