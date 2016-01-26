@@ -71,7 +71,6 @@ availability_versions: sdk
 	mkdir -p $(AVAILABILITY_VERSIONS_BLD)/dst
 	make --directory=$(AVAILABILITY_VERSIONS_SRC) install SRCROOT=$(AVAILABILITY_VERSIONS_SRC) \
 		DSTROOT=$(AVAILABILITY_VERSIONS_BLD)/dst
-	echo "You will need to authenticate to copy AvailabilityVersions to the new SDK."
 	ditto $(AVAILABILITY_VERSIONS_BLD)/dst/usr/local $(MACOSX_SDK_DST)/usr/local
 
 # xnu relies on the `ctfconvert`, `ctfdump` and `ctfmerge` tools to be in the path to correctly build.
@@ -110,7 +109,6 @@ XNU_HDRS_BLD = $(CURDIR)/build/xnu.hdrs
 .PHONY: xnu_hdrs
 xnu_hdrs: root_check libsystem dtrace
 	mkdir -p $(XNU_HDRS_BLD)/obj $(XNU_HDRS_BLD)/sym $(XNU_HDRS_BLD)/dst
-	echo "You will need to authenticate to build the xnu and libsyscall headers."
 	make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) \
 		SRCROOT=$(XNU_HDRS_SRC) OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
 	xcodebuild installhdrs -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
@@ -126,7 +124,6 @@ LIBSYSCALL_BLD = $(CURDIR)/build/xnu.libsyscall
 .PHONY: xnu_libsyscall
 xnu_libsyscall: root_check xnu_hdrs
 	mkdir -p $(LIBSYSCALL_BLD)/obj $(LIBSYSCALL_BLD)/sym $(LIBSYSCALL_BLD)/dst
-	echo "You will need to authenticate to build libsyscall."
 	xcodebuild install -project $(LIBSYSCALL_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
 		ARCHS='x86_64 i386' SRCROOT=$(LIBSYSCALL_SRC)/libsyscall OBJROOT=$(LIBSYSCALL_BLD)/obj \
 		SYMROOT=$(LIBSYSCALL_BLD)/sym DSTROOT=$(LIBSYSCALL_BLD)/dst
