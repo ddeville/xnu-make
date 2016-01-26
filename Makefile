@@ -16,6 +16,12 @@ endif
 .PHONY: all
 all: xnu
 
+.PHONY: install
+install: xnu
+
+.PHONY: deploy
+deploy: xnu
+
 .PHONY: clean
 clean: root_check
 	rm -rf $(CURDIR)/build
