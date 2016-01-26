@@ -5,13 +5,16 @@ MACOSX_SDK = MacOSX10.11
 
 # make sure that we're run as root
 
+.PHONY: root_check
 root_check:
 ifneq ($(shell id -u -r), 0)
 	$(error "Please run as root user!")
 endif
 
+.PHONY: all
 all: xnu
 
+.PHONY: clean
 clean: root_check
 	rm -rf $(CURDIR)/build
 
@@ -21,24 +24,32 @@ clean: root_check
 CORE_OS_MAKEFILES_SRC = $(CURDIR)/src/CoreOSMakefiles
 XCODE_PATH = `xcode-select --print-path`
 
+.PHONY: core_os_makefiles
 core_os_makefiles: root_check
 	if [ ! -f $(XCODE_PATH)/Makefiles/CoreOS/Xcode/BSD.xcconfig ]; \
 	then \
 		make --directory=$(CORE_OS_MAKEFILES_SRC) install DSTROOT=$(XCODE_PATH); \
 	fi;
 
-# make a copy of the current sdk
+# make a copy of the current sdk to the build directory and create a symlink in the Xcode SDKs directory
 
-MACOSX_SDK_SRC = $(CURDIR)/sdk/$(MACOSX_SDK).sdk
+XCODE_SDKS_DIR = `xcrun -sdk macosx --show-sdk-platform-path`/Developer/SDKs
+MACOSX_SDK_SRC = $(XCODE_SDKS_DIR)/$(MACOSX_SDK).sdk
 MACOSX_SDK_DST = $(CURDIR)/build/sdk/$(MACOSX_SDK)-xnu.sdk
-MACOSX_SDK_LNK = `xcrun -sdk macosx --show-sdk-platform-path`/Developer/SDKs/`basename $(MACOSX_SDK_DST)`
+MACOSX_SDK_LNK = $(XCODE_SDKS_DIR)/`basename $(MACOSX_SDK_DST)`
 MACOSX_SDK_XNU = `echo $(MACOSX_SDK) | tr A-Z a-z`-xnu
 
-macosx_sdk: root_check
+.PHONY: sdk
+sdk: root_check
+	if [ ! -d $(MACOSX_SDK_SRC) ]; \
+	then \
+		$(error "The SDK $(MACOSX_SDK) is not currently installed, make sure that you have the latest version of \
+			Xcode installed"); \
+	fi;
+
 	mkdir -p $(MACOSX_SDK_DST)
 	cd $(MACOSX_SDK_SRC) && rsync -rtpl . $(MACOSX_SDK_DST)
 	plutil -replace CanonicalName -string $(MACOSX_SDK_XNU) $(MACOSX_SDK_DST)/SDKSettings.plist
-	echo "You will need to authenticate to link the new Mac OS X SDK to a location where Xcode can find it."
 	ln -sf $(MACOSX_SDK_DST) $(MACOSX_SDK_LNK)
 
 # install the latest availability versions (a simple perl script) so that the xnu build doesn't get confused
@@ -46,7 +57,8 @@ macosx_sdk: root_check
 AVAILABILITY_VERSIONS_SRC = $(CURDIR)/externals/AvailabilityVersions/src
 AVAILABILITY_VERSIONS_BLD = $(CURDIR)/build/AvailabilityVersions
 
-availability_versions: macosx_sdk
+.PHONY: availability_versions
+availability_versions: sdk
 	mkdir -p $(AVAILABILITY_VERSIONS_BLD)/dst
 	make --directory=$(AVAILABILITY_VERSIONS_SRC) install SRCROOT=$(AVAILABILITY_VERSIONS_SRC) \
 		DSTROOT=$(AVAILABILITY_VERSIONS_BLD)/dst
@@ -60,6 +72,7 @@ DTRACE_SRC = $(CURDIR)/externals/dtrace/src
 DTRACE_BLD = $(CURDIR)/build/dtrace
 DTRACE_DST = $(DTRACE_BLD)/dst/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin
 
+.PHONY: dtrace
 dtrace: core_os_makefiles
 	mkdir -p $(DTRACE_BLD)/obj $(DTRACE_BLD)/sym $(DTRACE_BLD)/dst
 	xcodebuild install -project $(DTRACE_SRC)/dtrace.xcodeproj -target ctfconvert -target ctfdump -target ctfmerge \
@@ -73,6 +86,7 @@ export PATH := $(DTRACE_DST):$(PATH)
 LIBSYSTEM_SRC = $(CURDIR)/externals/libsystem/src
 LIBSYSTEM_BLD = $(CURDIR)/build/libsystem
 
+.PHONY: libsystem
 libsystem: core_os_makefiles availability_versions
 	mkdir -p $(LIBSYSTEM_BLD)/obj $(LIBSYSTEM_BLD)/sym $(LIBSYSTEM_BLD)/dst
 	xcodebuild installhdrs -project $(LIBSYSTEM_SRC)/Libsystem.xcodeproj -sdk $(MACOSX_SDK_XNU) ARCHS='x86_64 i386' \
@@ -84,6 +98,7 @@ libsystem: core_os_makefiles availability_versions
 XNU_HDRS_SRC = $(CURDIR)/externals/xnu/src
 XNU_HDRS_BLD = $(CURDIR)/build/xnu.hdrs
 
+.PHONY: xnu_hdrs
 xnu_hdrs: root_check libsystem dtrace
 	mkdir -p $(XNU_HDRS_BLD)/obj $(XNU_HDRS_BLD)/sym $(XNU_HDRS_BLD)/dst
 	echo "You will need to authenticate to build the xnu and libsyscall headers."
@@ -99,7 +114,8 @@ xnu_hdrs: root_check libsystem dtrace
 LIBSYSCALL_SRC = $(CURDIR)/externals/xnu/src
 LIBSYSCALL_BLD = $(CURDIR)/build/xnu.libsyscall
 
-xnu_libsyscall: root_checkxnu_hdrs
+.PHONY: xnu_libsyscall
+xnu_libsyscall: root_check xnu_hdrs
 	mkdir -p $(LIBSYSCALL_BLD)/obj $(LIBSYSCALL_BLD)/sym $(LIBSYSCALL_BLD)/dst
 	echo "You will need to authenticate to build libsyscall."
 	xcodebuild install -project $(LIBSYSCALL_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
@@ -111,6 +127,7 @@ xnu_libsyscall: root_checkxnu_hdrs
 XNU_SRC = $(CURDIR)/externals/xnu/src
 XNU_BLD = $(CURDIR)/build/xnu
 
+.PHONY: xnu
 xnu: xnu_libsyscall
 	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
 	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) KERNEL_CONFIGS=RELEASE \
