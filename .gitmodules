@@ -1,12 +1,12 @@
 [submodule "src/AvailabilityVersions"]
-	path = src/AvailabilityVersions
+	path = externals/AvailabilityVersions
 	url = git@github.com:ddeville/AvailabilityVersions.git
 [submodule "src/xnu"]
-	path = src/xnu
+	path = externals/xnu
 	url = git@github.com:ddeville/xnu.git
 [submodule "src/dtrace"]
-	path = src/dtrace
+	path = externals/dtrace
 	url = git@github.com:ddeville/dtrace.git
 [submodule "src/libsystem"]
-	path = src/libsystem
+	path = externals/libsystem
 	url = git@github.com:ddeville/libsystem.git
