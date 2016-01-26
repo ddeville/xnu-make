@@ -5,7 +5,7 @@ XCODE_SDK = `xcrun -sdk macosx -show-sdk-path`
 
 all: xnu
 
-DTRACE_SRC = $(CURDIR)/src/dtrace/src
+DTRACE_SRC = $(CURDIR)/externals/dtrace/src
 DTRACE_BLD = $(CURDIR)/build/dtrace
 DTRACE_DST = $(DTRACE_BLD)/dst/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin
 
@@ -18,7 +18,7 @@ dtrace:
 
 export PATH := $(DTRACE_DST):$(PATH)
 
-AVAILABILITY_VERSIONS_SRC = $(CURDIR)/src/AvailabilityVersions/src
+AVAILABILITY_VERSIONS_SRC = $(CURDIR)/externals/AvailabilityVersions/src
 AVAILABILITY_VERSIONS_BLD = $(CURDIR)/build/AvailabilityVersions
 
 availability_versions:
@@ -27,7 +27,7 @@ availability_versions:
 		DSTROOT=$(AVAILABILITY_VERSIONS_BLD)/dst
 	ditto $(AVAILABILITY_VERSIONS_BLD)/dst/usr/local $(XCODE_SDK)/usr/local
 
-LIBSYSTEM_SRC = $(CURDIR)/src/libsystem/src
+LIBSYSTEM_SRC = $(CURDIR)/externals/libsystem/src
 LIBSYSTEM_BLD = $(CURDIR)/build/libsystem
 
 libsystem:
@@ -36,7 +36,7 @@ libsystem:
 		SRCROOT=$(LIBSYSTEM_SRC) OBJROOT=$(LIBSYSTEM_BLD)/obj SYMROOT=$(LIBSYSTEM_BLD)/sym DSTROOT=$(LIBSYSTEM_BLD)/dst
 	ditto $(LIBSYSTEM_BLD)/dst $(XCODE_SDK)
 
-XNU_HDRS_SRC = $(CURDIR)/src/xnu/src
+XNU_HDRS_SRC = $(CURDIR)/externals/xnu/src
 XNU_HDRS_BLD = $(CURDIR)/build/xnu.hdrs
 
 xnu_hdrs:
@@ -47,7 +47,7 @@ xnu_hdrs:
 		SRCROOT=$(XNU_HDRS_SRC)/libsyscall OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym \
 		DSTROOT=$(XNU_HDRS_BLD)/dst
 
-XNU_SRC = $(CURDIR)/src/xnu/src
+XNU_SRC = $(CURDIR)/externals/xnu/src
 XNU_BLD = $(CURDIR)/build/xnu
 
 xnu: dtrace availability_versions libsystem xnu_hdrs
