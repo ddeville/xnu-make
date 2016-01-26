@@ -1,6 +1,6 @@
 # A makefile to build xnu without having to worry about dependencies
 
-all: dtrace availability_versions xnu
+all: xnu
 
 DTRACE_SRC = $(PWD)/src/dtrace/src
 DTRACE_BLD = $(PWD)/build/dtrace
@@ -24,6 +24,6 @@ XNU_BLD = $(PWD)/build/xnu
 
 export PATH := $(DTRACE_DST):$(AVAILABILITY_VERSIONS_DST):$(PATH)
 
-xnu:
+xnu: dtrace availability_versions
 	mkdir -p $(XNU_BLD)
 	cd $(XNU_SRC) && make SDKROOT=macosx ARCH_CONFIGS=X86_64 KERNEL_CONFIGS=RELEASE OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
