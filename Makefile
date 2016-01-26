@@ -79,9 +79,9 @@ XNU_HDRS_BLD = $(CURDIR)/build/xnu.hdrs
 xnu_hdrs: libsystem dtrace
 	mkdir -p $(XNU_HDRS_BLD)/obj $(XNU_HDRS_BLD)/sym $(XNU_HDRS_BLD)/dst
 	echo "You will need to authenticate to build the xnu and libsyscall headers."
-	make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK) ARCH_CONFIGS=$(ARCHS) SRCROOT=$(XNU_HDRS_SRC) \
+	sudo make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK) ARCH_CONFIGS=$(ARCHS) SRCROOT=$(XNU_HDRS_SRC) \
 		OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
-	xcodebuild installhdrs -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK) \
+	sudo xcodebuild installhdrs -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK) \
 		ARCHS='x86_64 i386' SRCROOT=$(XNU_HDRS_SRC)/libsyscall OBJROOT=$(XNU_HDRS_BLD)/obj \
 		SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
 	ditto $(XNU_HDRS_BLD)/dst $(MACOSX_SDK_DST)
@@ -94,7 +94,7 @@ LIBSYSCALL_BLD = $(CURDIR)/build/xnu.libsyscall
 xnu_libsyscall: xnu_hdrs
 	mkdir -p $(LIBSYSCALL_BLD)/obj $(LIBSYSCALL_BLD)/sym $(LIBSYSCALL_BLD)/dst
 	echo "You will need to authenticate to build libsyscall."
-	xcodebuild install -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK) \
+	sudo xcodebuild install -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK) \
 		ARCHS='x86_64 i386' SRCROOT=$(XNU_HDRS_SRC)/libsyscall OBJROOT=$(XNU_HDRS_BLD)/obj \
 		SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
 
@@ -103,7 +103,7 @@ xnu_libsyscall: xnu_hdrs
 XNU_SRC = $(CURDIR)/externals/xnu/src
 XNU_BLD = $(CURDIR)/build/xnu
 
-xnu: libsystem dtrace
+xnu: dtrace
 	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
 	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK) ARCH_CONFIGS=$(ARCHS) KERNEL_CONFIGS=RELEASE \
 	OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
