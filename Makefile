@@ -6,6 +6,9 @@ XCODE_SDK_PATH = `xcrun -sdk macosx -show-sdk-path`
 
 all: xnu
 
+clean:
+	rm -rf $(CURDIR)/build
+
 # libsystem and other dependencies rely on some Core OS makefiles to be installed in the Xcode developer directory.
 # this target does so, but only if not already installed since the user will need to authenticate to install them.
 
