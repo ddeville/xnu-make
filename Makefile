@@ -148,7 +148,7 @@ xnu: xnu_libsyscall
 install_xnu: sip_check xnu
 	# check for SIP!
 	cp $(XNU_BLD)/obj/kernel /System/Library/Kernels/
-	kextcache -invalidate
+	kextcache -invalidate /
 	echo "Reboot your machine!"
 
 # install libsyscall locally
