@@ -1,3 +1,7 @@
 .DS_Store
 .tags
+xcuserdata
+*.xccheckout
+profile
+DerivedData
 build/
