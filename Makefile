@@ -1,7 +1,9 @@
 # a makefile to build xnu without having to worry about dependencies or polluting the currently installed sdk.
 
-ARCHS = "x86_64"
 MACOSX_SDK = MacOSX10.11
+
+ARCHS = x86_64
+CONFIGS = RELEASE
 
 # make sure that we're run as root
 
@@ -11,13 +13,16 @@ ifneq ($(shell id -u -r), 0)
 	$(error "Please run as root user!")
 endif
 
+.PHONY: sip_check
+sip_check:
+
 # these are the default rules, `all`, `install`, `deploy` and `clean`
 
 .PHONY: all
 all: xnu
 
 .PHONY: install
-install: xnu
+install: install_xnu install_libsyscall
 
 .PHONY: deploy
 deploy: xnu
@@ -134,5 +139,23 @@ XNU_BLD = $(CURDIR)/build/xnu
 .PHONY: xnu
 xnu: xnu_libsyscall
 	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
-	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) KERNEL_CONFIGS=RELEASE \
+	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(ARCHS) KERNEL_CONFIGS=$(CONFIGS) \
 	OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
+
+# install xnu locally
+
+.PHONY: install_xnu
+install_xnu: sip_check xnu
+	# check for SIP!
+	cp $(XNU_BLD)/obj/kernel /System/Library/Kernels/
+	kextcache -invalidate
+	echo "Reboot your machine!"
+
+# install libsyscall locally
+
+.PHONY: install_libsyscall
+install_libsyscall: sip_check xnu_libsyscall
+	# check for SIP!
+	cp $(LIBSYSCALL_BLD)/dst/usr/lib/system/libsystem_kernel.dylib /usr/lib/system/
+	update_dyld_shared_cache
+	echo "Reboot your machine!"
