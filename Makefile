@@ -159,7 +159,7 @@ XNU_SRC := $(CURDIR)/externals/xnu/src
 XNU_BLD := $(CURDIR)/build/xnu
 
 .PHONY: xnu
-xnu: xnu_libsyscall
+xnu: availability_versions dtrace
 	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
 	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(KERN_ARCHS) KERNEL_CONFIGS=$(KERN_CONFIG) \
 	OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
