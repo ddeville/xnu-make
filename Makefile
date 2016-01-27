@@ -31,6 +31,8 @@ ifneq ($(shell id -u -r), 0)
 	$(error "Please run as root user!")
 endif
 
+# make sure that System Integrity Protection is disabled
+
 .PHONY: sip_check
 sip_check:
 # only check for SIP on 10.11 and greater
