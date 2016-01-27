@@ -2,11 +2,13 @@
 
 MACOSX_SDK = MacOSX10.11
 
+XNU_SRC = $(CURDIR)/externals/xnu/src
+
 KERN_CONFIG = RELEASE
 KERN_ARCHS = 'x86_64'
 USER_ARCHS = 'x86_64 i386'
 
-# these are the default rules, `all`, `install`, `deploy` and `clean`
+# these are the default rules, `all`, `install`, and `clean`
 
 SHELL := /bin/bash
 
@@ -15,9 +17,6 @@ all: xnu
 
 .PHONY: install
 install: install_xnu install_libsyscall
-
-.PHONY: deploy
-deploy: xnu
 
 .PHONY: clean
 clean: root_check
@@ -155,7 +154,6 @@ xnu_libsyscall: root_check xnu_hdrs
 
 # build xnu
 
-XNU_SRC := $(CURDIR)/externals/xnu/src
 XNU_BLD := $(CURDIR)/build/xnu
 
 .PHONY: xnu
@@ -166,9 +164,15 @@ xnu: availability_versions dtrace
 
 # install xnu locally
 
+ifeq ($(KERN_CONFIG),RELEASE)
+KERNEL_FILENAME := "kernel"
+else
+KERNEL_FILENAME := kernel.$(shell echo $(KERN_CONFIG) | tr A-Z a-z)
+endif
+
 .PHONY: install_xnu
 install_xnu: sip_check xnu
-	cp $(XNU_BLD)/obj/kernel /System/Library/Kernels/
+	cp $(XNU_BLD)/obj/$(KERNEL_FILENAME) /System/Library/Kernels/
 	kextcache -invalidate /
 	@echo "Reboot your machine!"
 
