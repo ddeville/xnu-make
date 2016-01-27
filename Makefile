@@ -47,6 +47,15 @@ else
 	@echo "System Integrity Protection is not available on this platform."
 endif
 
+# make sure that Xcode is installed
+
+.PHONY: xcode_check
+xcode_check:
+ifneq ($(shell xcode-select --print-path > /dev/null; echo $$?), 0)
+	$(error "Please make sure that Xcode is installed and the license has been agreed to.")
+endif
+	@echo "Xcode is installed."
+
 # libsystem and other dependencies rely on some Core OS makefiles to be installed in the Xcode developer directory.
 # this target does so, but only if not already installed since the user will need to authenticate to install them.
 
@@ -54,7 +63,7 @@ CORE_OS_MAKEFILES_SRC := $(CURDIR)/src/CoreOSMakefiles
 XCODE_PATH := $(shell xcode-select --print-path)
 
 .PHONY: core_os_makefiles
-core_os_makefiles: root_check
+core_os_makefiles: root_check xcode_check
 	if [ ! -f $(XCODE_PATH)/Makefiles/CoreOS/Xcode/BSD.xcconfig ]; \
 	then \
 		make --directory=$(CORE_OS_MAKEFILES_SRC) install DSTROOT=$(XCODE_PATH); \
