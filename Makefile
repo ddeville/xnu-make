@@ -168,7 +168,6 @@ xnu: xnu_libsyscall
 
 .PHONY: install_xnu
 install_xnu: sip_check xnu
-	# check for SIP!
 	cp $(XNU_BLD)/obj/kernel /System/Library/Kernels/
 	kextcache -invalidate /
 	@echo "Reboot your machine!"
@@ -177,7 +176,6 @@ install_xnu: sip_check xnu
 
 .PHONY: install_libsyscall
 install_libsyscall: sip_check xnu_libsyscall
-	# check for SIP!
 	cp $(LIBSYSCALL_BLD)/dst/usr/lib/system/libsystem_kernel.dylib /usr/lib/system/
 	update_dyld_shared_cache
 	@echo "Reboot your machine!"
