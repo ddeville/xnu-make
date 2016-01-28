@@ -43,7 +43,7 @@ cp $kern_build_location /System/Library/Kernels/
 kextcache -invalidate /
 
 # let's install libsyscall!
-# cp "$SCRIPT_DIR/build/dst/usr/lib/system/libsystem_kernel.dylib" /usr/lib/system/
+# cp "$SCRIPT_DIR/build/xnu.libsyscall/dst/usr/lib/system/libsystem_kernel.dylib" /usr/lib/system/
 # update_dyld_shared_cache
 
 echo "Reboot your machine by running 'sudo reboot'!"
