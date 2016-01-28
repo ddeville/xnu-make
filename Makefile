@@ -8,15 +8,12 @@ KERN_CONFIG = RELEASE
 KERN_ARCHS = 'x86_64'
 USER_ARCHS = 'x86_64 i386'
 
-# these are the default rules, `all`, `install`, and `clean`
+# these are the default rules, `all` and `clean`
 
 SHELL := /bin/bash
 
 .PHONY: all
-all: xnu
-
-.PHONY: install
-install: install_xnu install_libsyscall
+all: xnu xnu_libsyscall
 
 .PHONY: clean
 clean: root_check
@@ -28,22 +25,6 @@ clean: root_check
 root_check:
 ifneq ($(shell id -u -r), 0)
 	$(error "Please run as root user!")
-endif
-
-# make sure that System Integrity Protection is disabled
-
-.PHONY: sip_check
-sip_check:
-# only check for SIP on 10.11 and greater
-ifeq ($(shell test $(shell sw_vers -productVersion | awk -F. '{print $$2}') -ge 11; echo $$?), 0)
-# if SIP is enabled, throw an error!
-ifeq ($(shell /usr/bin/csrutil status | awk '/status/ {print $$5}' | sed 's/\.$$//'),enabled)
-	$(error "Please disable System Integrity Protection!")
-else
-	@echo "System Integrity Protection is disabled."
-endif
-else
-	@echo "System Integrity Protection is not available on this platform."
 endif
 
 # make sure that Xcode is installed
@@ -113,6 +94,16 @@ dtrace: core_os_makefiles
 
 export PATH := $(DTRACE_DST):$(PATH)
 
+# build xnu
+
+XNU_BLD := $(CURDIR)/build/xnu
+
+.PHONY: xnu
+xnu: availability_versions dtrace
+	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
+	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(KERN_ARCHS) KERNEL_CONFIGS=$(KERN_CONFIG) \
+	OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
+
 # install the libsystem headers in our sdk
 
 LIBSYSTEM_SRC := $(CURDIR)/externals/libsystem/src
@@ -151,35 +142,3 @@ xnu_libsyscall: root_check xnu_hdrs
 	xcodebuild install -project $(LIBSYSCALL_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
 		ARCHS=$(USER_ARCHS) SRCROOT=$(LIBSYSCALL_SRC)/libsyscall OBJROOT=$(LIBSYSCALL_BLD)/obj \
 		SYMROOT=$(LIBSYSCALL_BLD)/sym DSTROOT=$(LIBSYSCALL_BLD)/dst
-
-# build xnu
-
-XNU_BLD := $(CURDIR)/build/xnu
-
-.PHONY: xnu
-xnu: availability_versions dtrace
-	mkdir -p $(XNU_BLD)/obj $(XNU_BLD)/sym $(XNU_BLD)/dst
-	make --directory=$(XNU_SRC) SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(KERN_ARCHS) KERNEL_CONFIGS=$(KERN_CONFIG) \
-	OBJROOT=$(XNU_BLD)/obj SYMROOT=$(XNU_BLD)/sym DSTROOT=$(XNU_BLD)/dst
-
-# install xnu locally
-
-ifeq ($(KERN_CONFIG),RELEASE)
-KERNEL_FILENAME := "kernel"
-else
-KERNEL_FILENAME := kernel.$(shell echo $(KERN_CONFIG) | tr A-Z a-z)
-endif
-
-.PHONY: install_xnu
-install_xnu: sip_check xnu
-	cp $(XNU_BLD)/obj/$(KERNEL_FILENAME) /System/Library/Kernels/
-	kextcache -invalidate /
-	@echo "Reboot your machine!"
-
-# install libsyscall locally
-
-.PHONY: install_libsyscall
-install_libsyscall: sip_check xnu_libsyscall
-	cp $(LIBSYSCALL_BLD)/dst/usr/lib/system/libsystem_kernel.dylib /usr/lib/system/
-	update_dyld_shared_cache
-	@echo "Reboot your machine!"
