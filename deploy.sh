@@ -60,8 +60,8 @@ rsync -e "ssh $ssh_ctl_optn" $libsyscall_location $REMOTE_HOST:~/xnu-build/$libs
 install_cmd="echo 'You might need to authenticate to install the kernel on the remote machine.';\
              sudo cp ~/xnu-build/$kernel_filename /System/Library/Kernels/;\
              sudo kextcache -invalidate /;\
-             sudo cp ~/xnu-build/libsyscall_filename /usr/lib/system/;\
-             update_dyld_shared_cache;"
+             sudo cp ~/xnu-build/$libsyscall_filename /usr/lib/system/;\
+             sudo update_dyld_shared_cache;"
 ssh $ssh_ctl_optn -t $REMOTE_HOST $install_cmd
 
 # terminate the master ssh connection
