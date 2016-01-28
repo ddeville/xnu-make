@@ -8,12 +8,12 @@ KERN_CONFIG = RELEASE
 KERN_ARCHS = 'x86_64'
 USER_ARCHS = 'x86_64 i386'
 
-# these are the default rules, `all` and `clean`
-
 SHELL := /bin/bash
 
+# these are the default rules, `all` and `clean`
+
 .PHONY: all
-all: xnu xnu_libsyscall
+all: xnu libsyscall
 
 .PHONY: clean
 clean: root_check
@@ -118,26 +118,26 @@ libsystem: core_os_makefiles availability_versions
 
 # install the libsyscall headers
 
-XNU_HDRS_SRC := $(CURDIR)/externals/xnu/src
-XNU_HDRS_BLD := $(CURDIR)/build/xnu.hdrs
+HDRS_SRC := $(CURDIR)/externals/xnu/src
+HDRS_BLD := $(CURDIR)/build/xnu.hdrs
 
-.PHONY: xnu_hdrs
-xnu_hdrs: root_check libsystem dtrace
-	mkdir -p $(XNU_HDRS_BLD)/obj $(XNU_HDRS_BLD)/sym $(XNU_HDRS_BLD)/dst
-	make --directory=$(XNU_HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(KERN_ARCHS) \
-		SRCROOT=$(XNU_HDRS_SRC) OBJROOT=$(XNU_HDRS_BLD)/obj SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
-	xcodebuild installhdrs -project $(XNU_HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
-		ARCHS=$(USER_ARCHS) SRCROOT=$(XNU_HDRS_SRC)/libsyscall OBJROOT=$(XNU_HDRS_BLD)/obj \
-		SYMROOT=$(XNU_HDRS_BLD)/sym DSTROOT=$(XNU_HDRS_BLD)/dst
-	ditto $(XNU_HDRS_BLD)/dst $(MACOSX_SDK_DST)
+.PHONY: hdrs
+hdrs: root_check libsystem dtrace
+	mkdir -p $(HDRS_BLD)/obj $(HDRS_BLD)/sym $(HDRS_BLD)/dst
+	make --directory=$(HDRS_SRC) installhdrs SDKROOT=$(MACOSX_SDK_XNU) ARCH_CONFIGS=$(KERN_ARCHS) \
+		SRCROOT=$(HDRS_SRC) OBJROOT=$(HDRS_BLD)/obj SYMROOT=$(HDRS_BLD)/sym DSTROOT=$(HDRS_BLD)/dst
+	xcodebuild installhdrs -project $(HDRS_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
+		ARCHS=$(USER_ARCHS) SRCROOT=$(HDRS_SRC)/libsyscall OBJROOT=$(HDRS_BLD)/obj \
+		SYMROOT=$(HDRS_BLD)/sym DSTROOT=$(HDRS_BLD)/dst
+	ditto $(HDRS_BLD)/dst $(MACOSX_SDK_DST)
 
 # build libsyscall
 
 LIBSYSCALL_SRC := $(CURDIR)/externals/xnu/src
 LIBSYSCALL_BLD := $(CURDIR)/build/xnu.libsyscall
 
-.PHONY: xnu_libsyscall
-xnu_libsyscall: root_check xnu_hdrs
+.PHONY: libsyscall
+libsyscall: root_check hdrs
 	mkdir -p $(LIBSYSCALL_BLD)/obj $(LIBSYSCALL_BLD)/sym $(LIBSYSCALL_BLD)/dst
 	xcodebuild install -project $(LIBSYSCALL_SRC)/libsyscall/Libsyscall.xcodeproj -sdk $(MACOSX_SDK_XNU) \
 		ARCHS=$(USER_ARCHS) SRCROOT=$(LIBSYSCALL_SRC)/libsyscall OBJROOT=$(LIBSYSCALL_BLD)/obj \
