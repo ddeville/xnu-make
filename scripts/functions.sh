@@ -39,6 +39,12 @@ function kernel_build_location {
     echo "$xnu_build_location/$kernel_filename"
 }
 
+# given a build location return the location of the built libsyscall
+function libsyscall_build_location {
+    build_dir=$1
+    echo "$build_dir/xnu.libsyscall/dst/usr/lib/system/libsystem_kernel.dylib"
+}
+
 # prompt the user about installing the kernel and exits if denied
 function confirm_install {
     while :

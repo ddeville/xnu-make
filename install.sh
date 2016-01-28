@@ -27,23 +27,29 @@ do
     shift
 done
 
-# make sure that we have a built version of the kernel specified in the arguments
-kern_build_location=$(kernel_build_location $CONFIG $ARCH "$SCRIPT_DIR/build")
+# make sure that we have a built version of the kernel and libsyscall specified in the arguments
+kernel_location=$(kernel_build_location $CONFIG $ARCH "$SCRIPT_DIR/build")
+libsyscall_location=$(libsyscall_build_location "$SCRIPT_DIR/build")
 
-if [ ! -f $kern_build_location ];
+if [ ! -f $kernel_location ];
 then
-    fail "There is no built kernel at this location, make sure that you ran 'make': $kern_build_location"
+    fail "There is no built kernel at this location, make sure that you ran 'make': $kernel_location"
+fi
+
+if [ ! -f $libsyscall_location ];
+then
+    fail "There is no built libsyscall at this location, make sure that you ran 'make': $libsyscall_location"
 fi
 
 # we now have everything in place to install this kernel, ask the user one last time
 confirm_install
 
 # let's install the kernel!
-cp $kern_build_location /System/Library/Kernels/
+cp $kernel_location /System/Library/Kernels/
 kextcache -invalidate /
 
 # let's install libsyscall!
-cp "$SCRIPT_DIR/build/xnu.libsyscall/dst/usr/lib/system/libsystem_kernel.dylib" /usr/lib/system/
+cp $libsyscall_location /usr/lib/system/
 update_dyld_shared_cache
 
 echo "Reboot your machine by running 'sudo reboot'!"
