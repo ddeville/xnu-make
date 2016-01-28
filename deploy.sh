@@ -26,14 +26,21 @@ then
 fi
 
 # make sure that we have a built version of the kernel specified in the arguments
-kern_build_location=$(kernel_build_location $CONFIG $ARCH "$SCRIPT_DIR/build")
+kernel_location=$(kernel_build_location $CONFIG $ARCH "$SCRIPT_DIR/build")
+libsyscall_location=$(libsyscall_build_location "$SCRIPT_DIR/build")
 
-if [ ! -f $kern_build_location ];
+if [ ! -f $kernel_location ];
 then
-    fail "There is no built kernel at this location, make sure that you ran 'make': $kern_build_location"
+    fail "There is no built kernel at this location, make sure that you ran 'make': $kernel_location"
 fi
 
-kern_filename=$(basename $kern_build_location)
+if [ ! -f $libsyscall_location ];
+then
+    fail "There is no built libsyscall at this location, make sure that you ran 'make': $libsyscall_location"
+fi
+
+kernel_filename=$(basename $kernel_location)
+libsyscall_filename=$(basename $libsyscall_location)
 
 # create a master ssh connection so that we don't create multiple ones to execute all our commands
 ssh_ctl_path="$(mktemp -d /tmp/ssh_ctl.XXXXXXXXXX)"
@@ -45,13 +52,16 @@ clean_cmd="rm -fr ~/xnu-build;\
            mkdir -p ~/xnu-build;"
 ssh $ssh_ctl_optn -t $REMOTE_HOST $clean_cmd
 
-# copy the built kernel to the temp destination
-rsync -e "ssh $ssh_ctl_optn" $kern_build_location $REMOTE_HOST:~/xnu-build/$kern_filename
+# copy the built kernel and libsyscall to the temp destination
+rsync -e "ssh $ssh_ctl_optn" $kernel_location $REMOTE_HOST:~/xnu-build/$kernel_filename
+rsync -e "ssh $ssh_ctl_optn" $libsyscall_location $REMOTE_HOST:~/xnu-build/$libsyscall_filename
 
-# install the kernl by moving it to the appropriate location and invalidating the kext cache
+# install the kernel and libsyscall by moving them to the appropriate location and invalidating the kext/dyld cache
 install_cmd="echo 'You might need to authenticate to install the kernel on the remote machine.';\
-             sudo cp ~/xnu-build/$kern_filename /System/Library/Kernels/;\
-             sudo kextcache -invalidate /;"
+             sudo cp ~/xnu-build/$kernel_filename /System/Library/Kernels/;\
+             sudo kextcache -invalidate /;\
+             sudo cp ~/xnu-build/libsyscall_filename /usr/lib/system/;\
+             update_dyld_shared_cache;"
 ssh $ssh_ctl_optn -t $REMOTE_HOST $install_cmd
 
 # terminate the master ssh connection
