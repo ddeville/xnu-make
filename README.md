@@ -1,6 +1,6 @@
 # XNU make
 
-The Mac OS X kernel, `XNU`, is open source and building it from source is fairly straightforward (mainly thanks to [yearly instructions](http://shantonu.blogspot.ie) by Shantonu Sen).
+The Mac OS X kernel, `XNU`, is open source and building it from source is fairly straightforward (mainly thanks to [yearly instructions](http://shantonu.blogspot.com) by Shantonu Sen).
 
 However, building the kernel requires one to install a couple of dependencies that are not available on a Mac OS X installation by default. Since these dependencies are installed in the local Xcode Developer directory, one needs to install them on each new machine that one wants to build `XNU` on.
 Similarly, building `libsyscall` ends up modifying the local Mac OS X SDK in Xcode which might not be desirable.
