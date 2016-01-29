@@ -104,7 +104,7 @@ Since checking out this repo and compiling can be slow and cumbersome on a virtu
 Deploying is very similar to installing but it will all be performed on the remote machine. Say that I have a user called `damien` on a virtual machine with IP address `192.168.156.178`. I could deploy my newly built kernel by running:
 
 ```
-./deploy.sh -h damien@192.168.156.178 --xnu
+./deploy.sh --host damien@192.168.156.178 --xnu
 ```
 
 Similar options are available:
