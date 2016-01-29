@@ -45,6 +45,13 @@ function libsyscall_build_location {
     echo "$build_dir/xnu.libsyscall/dst/usr/lib/system/libsystem_kernel.dylib"
 }
 
+function macosx_sdk_build_location {
+    build_dir=$1
+    cd "$build_dir/sdk"
+    sdk_filename="$(find . -name '*.sdk' | head -1)"
+    echo "$(cd "$(dirname $sdk_filename)" && pwd)/$(basename $sdk_filename)"
+}
+
 # prompt the user about installing the kernel and exits if denied
 function confirm_install {
     while :

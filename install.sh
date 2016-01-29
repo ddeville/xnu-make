@@ -6,6 +6,8 @@ source "$SCRIPT_DIR/scripts/functions.sh"
 # default argument values
 CONFIG=RELEASE
 ARCH=x86_64
+INSTALL_XNU=0
+INSTALL_LIBSYSCALL=0
 
 # first let's make sure that this script is run as root otherwise we won't be able to install at all
 if [ $EUID != 0 ];
@@ -17,15 +19,23 @@ fi
 verify_sip
 
 # retrieve the arguments
-while [[ $# > 1 ]]
+while [[ $# > 0 ]]
 do
     case "$1" in
-        -c|--config ) CONFIG="$2";;
-        -a|--arch ) ARCH="$2";;
+        -c|--config ) CONFIG="$2"; shift;;
+        -a|--arch ) ARCH="$2"; shift;;
+        -x|--xnu ) INSTALL_XNU=1;;
+        -l|--libsyscall ) INSTALL_LIBSYSCALL=1;;
         * );;
     esac
     shift
 done
+
+# make sure that we are installing something
+if [ $INSTALL_XNU -eq 0 ] && [ $INSTALL_LIBSYSCALL -eq 0 ];
+then
+    fail "You need to install something! (--xnu for XNU and --libsyscall for Libsyscall)"
+fi
 
 # make sure that we have a built version of the kernel and libsyscall specified in the arguments
 kernel_location=$(kernel_build_location $CONFIG $ARCH "$SCRIPT_DIR/build")
@@ -45,11 +55,17 @@ fi
 confirm_install
 
 # let's install the kernel!
-cp $kernel_location /System/Library/Kernels/
-kextcache -invalidate /
+if [ $INSTALL_XNU -eq 1 ];
+then
+    cp $kernel_location /System/Library/Kernels/
+    kextcache -invalidate /
+fi
 
 # let's install libsyscall!
-cp $libsyscall_location /usr/lib/system/
-update_dyld_shared_cache
+if [ $INSTALL_LIBSYSCALL -eq 1 ];
+then
+    cp $libsyscall_location /usr/lib/system/
+    update_dyld_shared_cache
+fi
 
 echo "Reboot your machine by running 'sudo reboot'!"
