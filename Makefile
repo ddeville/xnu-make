@@ -64,6 +64,7 @@ endif
 	mkdir -p $(MACOSX_SDK_DST)
 	cd $(MACOSX_SDK_SRC) && rsync -rtpl . $(MACOSX_SDK_DST)
 	plutil -replace CanonicalName -string $(MACOSX_SDK_XNU) $(MACOSX_SDK_DST)/SDKSettings.plist
+	rm -f $(MACOSX_SDK_LNK)
 	ln -sf $(MACOSX_SDK_DST) $(MACOSX_SDK_LNK)
 
 # install the latest availability versions (a simple perl script) so that the xnu build doesn't get confused
