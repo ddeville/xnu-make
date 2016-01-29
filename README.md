@@ -75,7 +75,7 @@ As before, a bunch of default configurations are provided and can be overriden b
 ```
 --config DEBUG  // install the DEBUG release
 --arch x86_64   // install the x86_64 architecture
---XNU           // install XNU
+--xnu           // install XNU
 --libsyscall    // install libsyscall
 ```
 
