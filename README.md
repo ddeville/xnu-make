@@ -100,3 +100,21 @@ Only run this script on a virtual machine and take a snapshot before so that you
 ## Deploying
 
 Since checking out this repo and compiling can be slow and cumbersome on a virtual machine (or a seconday physical machine), another script `deploy.sh` lets one deploy a version of the kernel that was built locally to a remote host.
+
+Deploying is very similar to installing but it will all be performed on the remote machine. Say that I have a user called `damien` on a virtual machine with IP address `192.168.156.178`. I could deploy my newly built kernel by running:
+
+```
+./deploy.sh -h damien@192.168.156.178 --xnu
+```
+
+Similar options are available:
+
+```
+--host 192.168.156.178  // deploy to the host at 192.168.156.178
+--config DEBUG          // deploy the DEBUG release
+--arch x86_64           // deploy the x86_64 architecture
+--xnu                   // deploy XNU
+--libsyscall            // deploy libsyscall
+```
+
+`deploy.sh` will `SSH` to the host, `rsync` the built executables to the remote machine and install them on the host. Since it can be quite annoying to repeatedly enter your password, consider setting up public key authentication with your remote (virtual) machine. You will still need to enter your password to install the components on the remote machine.
