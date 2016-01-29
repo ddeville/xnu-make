@@ -62,4 +62,41 @@ sudo make XNU_SRC=/Users/damien/src/xnu
 
 ## Installing
 
+An `install.sh` script is provided separately from the `Makefile` (since installing the new kernel will replace the existing one and potentially make your machine unusable, it’s best to keep it as separate as possible from the benign action of building the project).
+
+Installation can be invoked from the command line by running:
+
+```
+sudo ./install.sh --xnu
+```
+
+As before, a bunch of default configurations are provided and can be overriden by passing arguments on the command line:
+
+```
+--config DEBUG  // install the DEBUG release
+--arch x86_64   // install the x86_64 architecture
+--XNU           // install XNU
+--libsyscall    // install libsyscall
+```
+
+So if you wanted to install the `x86_64` release version of both `XNU` and `libsyscall` you would do:
+
+```
+sudo ./install.sh --config RELEASE --arch x86_64 --xnu --libsyscall
+```
+
+You should then reboot your machine for the changes to take effect:
+
+```
+sudo reboot
+```
+
+Note that if you’re running 10.11 or greater, System Integrity Protection will have to be disabled for the installation to succeed.
+
+Finally, I cannot stress enough that you should **not** run this on your main machine. Running the install script will override the current kernel on your machine with the one that you just built. While it might be fine (since it’s after all the same version that the one that Apple ships with Mac OS X) it could make your system unusable if you mess things up.
+
+Only run this script on a virtual machine and take a snapshot before so that you can easily revert if you mess things up.
+
 ## Deploying
+
+Since checking out this repo and compiling can be slow and cumbersome on a virtual machine (or a seconday physical machine), another script `deploy.sh` lets one deploy a version of the kernel that was built locally to a remote host.
