@@ -1,12 +1,12 @@
 [submodule "src/AvailabilityVersions"]
 	path = externals/AvailabilityVersions
-	url = https://github.com/ddeville/AvailabilityVersions.git
+	url = https://github.com/TheArchitectEngineer/ddeville_AvailabilityVersions.git
 [submodule "src/xnu"]
 	path = externals/xnu
-	url = https://github.com/ddeville/xnu.git
+	url = https://github.com/TheArchitectEngineer/ddeville_xnu.git
 [submodule "src/dtrace"]
 	path = externals/dtrace
-	url = https://github.com/ddeville/dtrace.git
+	url = https://github.com/TheArchitectEngineer/ddeville_dtrace.git
 [submodule "src/libsystem"]
 	path = externals/libsystem
-	url = https://github.com/ddeville/libsystem.git
+	url = https://github.com/TheArchitectEngineer/ddeville_libsystem.git
